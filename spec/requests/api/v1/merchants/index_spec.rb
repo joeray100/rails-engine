@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Merchants API' do
+RSpec.describe 'Merchants Index API' do
   before :each do
     FactoryBot.reload
   end
@@ -29,35 +29,35 @@ RSpec.describe 'Merchants API' do
       end
     end
 
-      it 'sends the correct amount of merchants based on the page value' do
-        create_list(:merchant, 80)
+    it 'fetching page 1 is the same list of first 20 in db' do
+      create_list(:merchant, 80)
 
-        get '/api/v1/merchants?page=1'
-        expect(response).to be_successful
-        merchants = JSON.parse(response.body, symbolize_names: true)[:data]
-        expect(merchants.count).to eq(20)
-        require 'pry'; binding.pry
-        expect(merchants.first[:id]).to eq(1)
-      end
-
-      it 'sends the correct amount of merchants based on the per page value' do
-        create_list(:merchant, 80)
-
-        get '/api/v1/merchants?per_page=13'
-        expect(response).to be_successful
-        merchants = JSON.parse(response.body, symbolize_names: true)[:data]
-        expect(merchants.count).to eq(13)
-      end
-
-      it 'sends the correct amount of merchants based on the per page & page value' do
-        create_list(:merchant, 80)
-
-        get '/api/v1/merchants?per_page=18page=1'
-        expect(response).to be_successful
-        merchants = JSON.parse(response.body, symbolize_names: true)[:data]
-        expect(merchants.count).to eq(18)
-      end
+      get '/api/v1/merchants?page=1'
+      expect(response).to be_successful
+      merchants = JSON.parse(response.body, symbolize_names: true)[:data]
+      expect(merchants.count).to eq(20)
+      expect(merchants.first[:id]).to eq("1")
+      expect(merchants.last[:id]).to eq("20")
     end
+
+    it 'sends the correct amount of merchants based on the per page value' do
+      create_list(:merchant, 80)
+
+      get '/api/v1/merchants?per_page=13'
+      expect(response).to be_successful
+      merchants = JSON.parse(response.body, symbolize_names: true)[:data]
+      expect(merchants.count).to eq(13)
+    end
+
+    it 'sends the correct amount of merchants based on the per page & page value' do
+      create_list(:merchant, 80)
+
+      get '/api/v1/merchants?per_page=18page=1'
+      expect(response).to be_successful
+      merchants = JSON.parse(response.body, symbolize_names: true)[:data]
+      expect(merchants.count).to eq(18)
+    end
+  end
 
   describe 'sad path' do
     it 'returns an empty array of merchants when called correctly' do
@@ -70,6 +70,17 @@ RSpec.describe 'Merchants API' do
 
       expect(merchants).to be_a(Array)
       expect(merchants).to be_empty
+    end
+
+    it 'fetching page 1 if page is 0 or lower' do
+      create_list(:merchant, 80)
+
+      get '/api/v1/merchants?page=0'
+      expect(response).to be_successful
+      merchants = JSON.parse(response.body, symbolize_names: true)[:data]
+      expect(merchants.count).to eq(20)
+      expect(merchants.first[:id]).to eq("1")
+      expect(merchants.last[:id]).to eq("20")
     end
   end
 end
