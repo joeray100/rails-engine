@@ -6,10 +6,13 @@ RSpec.describe Item, type: :model do
     it { should have_many(:invoice_items) }
   end
 
-  # describe 'validations' do
-  #   it { should validate_presence_of(:) }
-  # end
-  #
+  describe 'validations' do
+    it { should validate_presence_of(:name) }
+    it { should validate_presence_of(:description) }
+    it { should validate_presence_of(:unit_price) }
+    it { should validate_presence_of(:merchant_id) }
+  end
+
   # before :each do
   #
   # end
