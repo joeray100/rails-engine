@@ -17,7 +17,6 @@ class ApplicationRecord < ActiveRecord::Base
     def find_item(search_parmas)
       where('name ILIKE ?', "%#{search_parmas}%")
       .order(:name)
-      .limit(2)
     end
 
   end
