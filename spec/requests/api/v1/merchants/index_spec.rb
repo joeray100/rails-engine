@@ -52,7 +52,7 @@ RSpec.describe 'Merchants Index API' do
     it 'sends the correct amount of merchants based on the per page & page value' do
       create_list(:merchant, 80)
 
-      get '/api/v1/merchants?per_page=18page=1'
+      get '/api/v1/merchants?per_page=18&page=1'
       expect(response).to be_successful
       merchants = JSON.parse(response.body, symbolize_names: true)[:data]
       expect(merchants.count).to eq(18)
@@ -75,12 +75,15 @@ RSpec.describe 'Merchants Index API' do
     it 'fetching page 1 if page is 0 or lower' do
       create_list(:merchant, 80)
 
+      get '/api/v1/merchants?page=1'
+      page1 = JSON.parse(response.body, symbolize_names: true)[:data]
+
       get '/api/v1/merchants?page=0'
+      page0 = JSON.parse(response.body, symbolize_names: true)[:data]
+
       expect(response).to be_successful
-      merchants = JSON.parse(response.body, symbolize_names: true)[:data]
-      expect(merchants.count).to eq(20)
-      expect(merchants.first[:id]).to eq("1")
-      expect(merchants.last[:id]).to eq("20")
+      expect(page0.count).to eq(20)
+      expect(page1).to eq(page0)
     end
   end
 end
