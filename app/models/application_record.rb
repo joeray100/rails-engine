@@ -8,5 +8,17 @@ class ApplicationRecord < ActiveRecord::Base
       page = (page - 1) * per_page if page > 0
       limit(per_page).offset(page)
     end
+
+    def find_all_merchants(search_parmas)
+      where('name ILIKE ?', "%#{search_parmas}%")
+      .order(:name)
+    end
+
+    def find_item(search_parmas)
+      where('name ILIKE ?', "%#{search_parmas}%")
+      .order(:name)
+      .limit(2)
+    end
+
   end
 end
