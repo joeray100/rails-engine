@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
 
+      namespace :revenue do
+        resources :merchants, only: :show
+        resources :unshipped, only: :index
+      end
+
       namespace :merchants do
         get '/find_all', to: 'search#index'
       end

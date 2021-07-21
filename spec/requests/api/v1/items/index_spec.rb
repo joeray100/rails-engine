@@ -3,12 +3,13 @@ require 'rails_helper'
 RSpec.describe 'Items Index API' do
   before :each do
     FactoryBot.reload
-    @merchants = create_list(:merchant, 25)
-    @items = create_list(:item, 50)
   end
 
   describe 'happy path' do
     it 'fetch all items if per page is really big' do
+      merchant = create(:merchant)
+      items = create_list(:item, 50, merchant: merchant)
+
       get '/api/v1/items?per_page=250000'
       expect(response).to be_successful
       items = JSON.parse(response.body, symbolize_names: true)
@@ -19,6 +20,9 @@ RSpec.describe 'Items Index API' do
     end
 
     it 'fetch all items, a maximum of 20 at a time' do
+      merchant = create(:merchant)
+      items = create_list(:item, 50, merchant: merchant)
+
       get '/api/v1/items'
       expect(response).to be_successful
       items = JSON.parse(response.body, symbolize_names: true)[:data]
@@ -44,33 +48,51 @@ RSpec.describe 'Items Index API' do
     end
 
     it 'fetching page 1 is the same list of first 20 in db' do
+      merchant = create(:merchant)
+      80.times do |index|
+        Item.create!(name: "Item-#{index + 1}", description: Faker::GreekPhilosophers.quote, unit_price: Faker::Commerce.price, merchant: merchant)
+      end
+
       get '/api/v1/items?page=1'
       expect(response).to be_successful
       items = JSON.parse(response.body, symbolize_names: true)[:data]
       expect(items.count).to eq(20)
-      expect(items.first[:id]).to eq("1")
-      expect(items.last[:id]).to eq("20")
+      expect(items.first[:attributes][:name]).to eq("Item-1")
+      expect(items.last[:attributes][:name]).to eq("Item-20")
     end
 
     it 'fetch first page of 50 items' do
+      merchant = create(:merchant)
+      80.times do |index|
+        Item.create!(name: "Item-#{index + 1}", description: Faker::GreekPhilosophers.quote, unit_price: Faker::Commerce.price, merchant: merchant)
+      end
+
       get '/api/v1/items?per_page=50&page=1'
       expect(response).to be_successful
       items = JSON.parse(response.body, symbolize_names: true)[:data]
       expect(items.count).to eq(50)
-      expect(items.first[:id]).to eq("1")
-      expect(items.last[:id]).to eq("50")
+      expect(items.first[:attributes][:name]).to eq("Item-1")
+      expect(items.last[:attributes][:name]).to eq("Item-50")
     end
 
     it 'fetch second page of 20 items' do
+      merchant = create(:merchant)
+      80.times do |index|
+        Item.create!(name: "Item-#{index + 1}", description: Faker::GreekPhilosophers.quote, unit_price: Faker::Commerce.price, merchant: merchant)
+      end
+
       get '/api/v1/items?page=2'
       expect(response).to be_successful
       items = JSON.parse(response.body, symbolize_names: true)[:data]
       expect(items.count).to eq(20)
-      expect(items.first[:id]).to eq("21")
-      expect(items.last[:id]).to eq("40")
+      expect(items.first[:attributes][:name]).to eq("Item-21")
+      expect(items.last[:attributes][:name]).to eq("Item-40")
     end
 
     it 'fetch a page of items which would contain no data' do
+      merchant = create(:merchant)
+      items = create_list(:item, 50, merchant: merchant)
+
       get '/api/v1/items?page=5'
       expect(response).to be_successful
       items = JSON.parse(response.body, symbolize_names: true)[:data]
@@ -81,6 +103,9 @@ RSpec.describe 'Items Index API' do
 
   describe 'sad path' do
     it 'fetching page 1 if page is 0 or lower' do
+      merchant = create(:merchant)
+      items = create_list(:item, 50, merchant: merchant)
+
       get '/api/v1/items?page=1'
       page1 = JSON.parse(response.body, symbolize_names: true)[:data]
 
