@@ -11,11 +11,12 @@ RSpec.describe 'Merchants Search(Find All) Show API' do
       item2 = create(:item, name: 'yo-yo')
 
       get '/api/v1/items/find?name=es'
-      search_result = JSON.parse(response.body, symbolize_names: true)[:data]
+      search_result = JSON.parse(response.body, symbolize_names: true)
 
       expect(response).to be_successful
       expect(search_result.count).to eq(1)
-      expect(search_result.first[:attributes][:name]).to eq(item1.name)
+      expect(search_result[:data][:attributes][:name]).to eq(item1.name)
+      expect(search_result[:data][:attributes][:name]).to_not eq(item2.name)
     end
   end
 

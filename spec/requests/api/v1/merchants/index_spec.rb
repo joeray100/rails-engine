@@ -30,14 +30,16 @@ RSpec.describe 'Merchants Index API' do
     end
 
     it 'fetching page 1 is the same list of first 20 in db' do
-      create_list(:merchant, 80)
+      80.times do |index|
+        Merchant.create!(name: "Merchant-#{index + 1}")
+      end
 
       get '/api/v1/merchants?page=1'
       expect(response).to be_successful
       merchants = JSON.parse(response.body, symbolize_names: true)[:data]
       expect(merchants.count).to eq(20)
-      expect(merchants.first[:id]).to eq("1")
-      expect(merchants.last[:id]).to eq("20")
+      expect(merchants.first[:attributes][:name]).to eq("Merchant-1")
+      expect(merchants.last[:attributes][:name]).to eq("Merchant-20")
     end
 
     it 'sends the correct amount of merchants based on the per page value' do
