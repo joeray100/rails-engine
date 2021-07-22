@@ -14,4 +14,15 @@ class Merchant < ApplicationRecord
     .where('invoices.status = ?', 'shipped')
     .sum('invoice_items.quantity * invoice_items.unit_price')
   end
+
+  class << self
+    def most_items_sold(quantity)
+      joins(invoice_items: :transactions).
+      where(transactions: {result: 'success'}, invoices: {status: 'shipped'}).
+      group(:id).
+      select('merchants.*, sum(invoice_items.quantity) as count').
+      order('count desc').
+      limit(quantity)
+    end
+  end
 end
