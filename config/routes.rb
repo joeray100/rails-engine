@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
 
+      namespace :merchants do
+        resources :most_items, only: :index
+      end
+
       namespace :revenue do
         resources :merchants, only: :show
         resources :unshipped, only: :index
